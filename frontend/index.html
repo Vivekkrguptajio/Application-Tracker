@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Application Tracker</title>
+</head>
+<body>
+
+    <h1>Application Tracker</h1>
+
+    <!-- Input Field -->
+    <input type="text" id="link" placeholder="Enter Application Link">
+    <button onclick="saveApplication()">Save</button>
+
+    <hr>
+
+    <!-- Saved Data -->
+    <h2>Saved Applications</h2>
+
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Link</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody id="applicationTable">
+        </tbody>
+    </table>
+
+    <script>
+
+        // Page load hote hi data fetch karo
+        window.onload = function () {
+            getApplications();
+        };
+
+        // Save Application
+        function saveApplication() {
+            const linkValue = document.getElementById("link").value;
+
+            fetch("http://localhost:8080/api/applications", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    link: linkValue
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Saved Successfully!");
+                document.getElementById("link").value = "";
+                getApplications();
+            });
+        }
+
+        // Get All Applications
+        function getApplications() {
+            fetch("http://localhost:8080/api/applications")
+            .then(response => response.json())
+            .then(data => {
+                let table = document.getElementById("applicationTable");
+                table.innerHTML = "";
+
+                data.forEach(app => {
+
+                    // createdAt ko split karna
+                    let fullDateTime = app.createdAt;
+
+                    let datePart = "";
+                    let timePart = "";
+
+                    if (fullDateTime) {
+                        let parts = fullDateTime.split("T");
+
+                        datePart = parts[0]; // Date
+                        timePart = parts[1].split(".")[0]; // Time only
+                    }
+
+                    table.innerHTML += `
+                        <tr>
+                            <td>${app.id}</td>
+                            <td>${app.link}</td>
+                            <td>${app.status}</td>
+                            <td>${datePart}</td>
+                            <td>${timePart}</td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+    </script>
+
+</body>
+</html>

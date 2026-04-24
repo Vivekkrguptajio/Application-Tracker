@@ -1,0 +1,3 @@
+.idea
+.git
+*.imldocker run -p 8080:8080 application-tracker
