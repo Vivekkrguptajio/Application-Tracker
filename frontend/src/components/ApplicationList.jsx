@@ -15,7 +15,8 @@ function ConfirmModal({ appId, onConfirm, onCancel }) {
       position: 'fixed', inset: 0, zIndex: 9998,
       background: 'rgba(0,0,0,0.65)',
       backdropFilter: 'blur(6px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+      paddingTop: '12vh',
       animation: 'fadeIn 0.15s ease-out',
     }}>
       <div style={{
