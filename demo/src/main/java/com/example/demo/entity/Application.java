@@ -11,19 +11,33 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 2048)
     private String link;
 
+    @Column(nullable = false, length = 50)
     private String status;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        status = "Applied";
+        updatedAt = LocalDateTime.now();
+        if (status == null || status.isBlank()) {
+            status = "Applied";
+        }
     }
 
-    // Getters and Setters
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // ── Getters & Setters ──
 
     public Long getId() {
         return id;
@@ -41,7 +55,15 @@ public class Application {
         return status;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

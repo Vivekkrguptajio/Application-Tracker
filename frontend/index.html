@@ -1,100 +1,17 @@
-<!DOCTYPE html>
-<html>
-<head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Track all your job applications in one place with Application Tracker" />
     <title>Application Tracker</title>
-</head>
-<body>
-
-<h1>Application Tracker</h1>
-
-<!-- Input Field -->
-<input type="text" id="link" placeholder="Enter Application Link">
-<button onclick="saveApplication()">Save</button>
-
-<hr>
-
-<!-- Saved Data -->
-<h2>Saved Applications</h2>
-
-<table border="1" cellpadding="10">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Link</th>
-        <th>Status</th>
-        <th>Date</th>
-        <th>Time</th>
-    </tr>
-    </thead>
-    <tbody id="applicationTable">
-    </tbody>
-</table>
-
-<script>
-
-    // 🔥 Render Backend URL
-    const BASE_URL = "https://application-tracker-1xcw.onrender.com/api/applications";
-
-    // Page load hote hi data fetch karo
-    window.onload = function () {
-        getApplications();
-    };
-
-    // Save Application
-    function saveApplication() {
-        const linkValue = document.getElementById("link").value;
-
-        fetch(BASE_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                link: linkValue
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert("Saved Successfully!");
-            document.getElementById("link").value = "";
-            getApplications();
-        });
-    }
-
-    // Get All Applications
-    function getApplications() {
-        fetch(BASE_URL)
-        .then(response => response.json())
-        .then(data => {
-            let table = document.getElementById("applicationTable");
-            table.innerHTML = "";
-
-            data.forEach(app => {
-
-                let fullDateTime = app.createdAt;
-                let datePart = "";
-                let timePart = "";
-
-                if (fullDateTime) {
-                    let parts = fullDateTime.split("T");
-                    datePart = parts[0];
-                    timePart = parts[1].split(".")[0];
-                }
-
-                table.innerHTML += `
-                    <tr>
-                        <td>${app.id}</td>
-                        <td>${app.link}</td>
-                        <td>${app.status}</td>
-                        <td>${datePart}</td>
-                        <td>${timePart}</td>
-                    </tr>
-                `;
-            });
-        });
-    }
-
-</script>
-
-</body>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
