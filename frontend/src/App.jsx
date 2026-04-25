@@ -26,10 +26,13 @@ function App() {
   const getApplications = useCallback(async () => {
     try {
       const res = await fetch(BASE_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      setApplications(data);
+      setApplications(Array.isArray(data) ? data : []);
     } catch (err) {
+      console.error('Fetch error:', err);
       setToast({ message: 'Failed to load applications', type: 'error' });
+      setApplications([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
