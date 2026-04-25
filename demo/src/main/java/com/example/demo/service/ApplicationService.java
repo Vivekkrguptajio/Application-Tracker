@@ -47,8 +47,14 @@ public class ApplicationService {
      */
     @Transactional
     public ApplicationResponse create(ApplicationRequest request) {
+        String trimmedLink = request.getLink().trim();
+
+        if (repository.findByLink(trimmedLink).isPresent()) {
+            throw new com.example.demo.exception.DuplicateResourceException("Application with this link already exists");
+        }
+
         Application app = new Application();
-        app.setLink(request.getLink().trim());
+        app.setLink(trimmedLink);
         Application saved = repository.save(app);
         return ApplicationResponse.from(saved);
     }

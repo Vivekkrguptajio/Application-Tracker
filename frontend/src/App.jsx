@@ -53,6 +53,10 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ link: link.trim() }),
       });
+      if (res.status === 409) {
+        setToast({ message: '⚠️ Already applied!', type: 'error' });
+        return;
+      }
       if (!res.ok) throw new Error();
       await res.json();
       setToast({ message: '✅ Application saved!', type: 'success' });

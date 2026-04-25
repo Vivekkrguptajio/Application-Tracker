@@ -27,6 +27,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 409 — Conflict (e.g. Duplicate Resource)
+     */
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<Map<String, Object>> handleConflict(DuplicateResourceException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", 409);
+        body.put("error", "Conflict");
+        body.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    /**
      * 400 — Validation errors (@Valid failures)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
