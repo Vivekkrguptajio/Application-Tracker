@@ -17,6 +17,9 @@ public class Application {
     @Column(nullable = false, length = 50)
     private String status;
 
+    @Column(length = 255)
+    private String company;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -57,6 +60,14 @@ public class Application {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 
     public LocalDateTime getCreatedAt() {

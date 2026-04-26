@@ -9,6 +9,8 @@ public class ApplicationRequest {
     @Size(max = 2048, message = "Link must not exceed 2048 characters")
     private String link;
 
+    private String company;
+
     // ── Getters & Setters ──
 
     public String getLink() {
@@ -17,5 +19,13 @@ public class ApplicationRequest {
 
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 }

@@ -10,15 +10,45 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class ApplicationService {
 
     private final ApplicationRepository repository;
+    private final AiService aiService;
 
-    public ApplicationService(ApplicationRepository repository) {
+    public ApplicationService(ApplicationRepository repository, AiService aiService) {
         this.repository = repository;
+        this.aiService = aiService;
+    }
+
+    /**
+     * Fix all applications with 'Unknown' or null company names using AI.
+     */
+    @Transactional
+    public Map<String, Object> fixUnknownCompanies() {
+        List<Application> unknowns = repository.findAll().stream()
+                .filter(app -> app.getCompany() == null || "Unknown".equalsIgnoreCase(app.getCompany()))
+                .toList();
+
+        int fixedCount = 0;
+        for (Application app : unknowns) {
+            String detected = aiService.detectCompanyFromUrl(app.getLink());
+            
+            if (detected != null && !"Unknown".equalsIgnoreCase(detected)) {
+                app.setCompany(detected);
+                repository.save(app);
+                fixedCount++;
+            }
+        }
+
+        return Map.of(
+            "totalUnknowns", unknowns.size(),
+            "fixedCount", fixedCount,
+            "message", "AI cleanup completed"
+        );
     }
 
     /**
@@ -55,6 +85,7 @@ public class ApplicationService {
 
         Application app = new Application();
         app.setLink(trimmedLink);
+        app.setCompany(request.getCompany());
         Application saved = repository.save(app);
         return ApplicationResponse.from(saved);
     }

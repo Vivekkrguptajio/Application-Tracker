@@ -17,9 +17,32 @@ import java.util.Map;
 public class ApplicationController {
 
     private final ApplicationService service;
+    private final com.example.demo.service.AiService aiService;
 
-    public ApplicationController(ApplicationService service) {
+    public ApplicationController(ApplicationService service, com.example.demo.service.AiService aiService) {
         this.service = service;
+        this.aiService = aiService;
+    }
+
+    /**
+     * POST /api/applications/detect-company — AI detection of company name
+     */
+    @PostMapping("/detect-company")
+    public ResponseEntity<Map<String, String>> detectCompany(@RequestBody Map<String, String> body) {
+        String url = body.get("url");
+        if (url == null || url.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "URL is required"));
+        }
+        String company = aiService.detectCompanyFromUrl(url);
+        return ResponseEntity.ok(Map.of("company", company));
+    }
+
+    /**
+     * POST /api/applications/fix-unknown-companies — Trigger AI cleanup for existing records
+     */
+    @PostMapping("/fix-unknown-companies")
+    public ResponseEntity<Map<String, Object>> fixUnknown() {
+        return ResponseEntity.ok(service.fixUnknownCompanies());
     }
 
     /**

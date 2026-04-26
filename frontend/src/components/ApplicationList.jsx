@@ -8,6 +8,25 @@ const STATUS_MAP = {
   REJECTED:  's-rejected',
 };
 
+const COMPANY_COLORS = {
+  'LinkedIn': '#0a66c2',
+  'Naukri': '#ff7555',
+  'Indeed': '#2557a7',
+  'Google': '#4285f4',
+  'Amazon': '#ff9900',
+  'Microsoft': '#00a4ef',
+  'Meta': '#0866ff',
+  'Netflix': '#e50914',
+  'Flipkart': '#2874f0',
+  'Swiggy': '#fc8019',
+  'Zomato': '#e23744',
+};
+
+function getCompanyColor(name) {
+  if (!name || name === 'Unknown') return '#6366f1';
+  return COMPANY_COLORS[name] || '#6366f1';
+}
+
 /* ── Confirm Modal ── */
 function ConfirmModal({ appId, onConfirm, onCancel }) {
   return (
@@ -30,7 +49,6 @@ function ConfirmModal({ appId, onConfirm, onCancel }) {
         textAlign: 'center',
         animation: 'fadeInUp 0.2s cubic-bezier(.22,1,.36,1)',
       }}>
-        {/* Icon */}
         <div style={{
           width: 56, height: 56,
           borderRadius: '50%',
@@ -126,14 +144,22 @@ function ApplicationRow({ app, index, onDeleteRequest, onUpdateStatus }) {
     timePart = t?.split('.')[0] || '—';
   }
 
+  const companyName = app.company || 'Unknown';
+
   return (
     <tr className="anim-fade-up" style={{ animationDelay: `${index * 0.04}s` }}>
       <td>
-        <span className="id-badge">#{app.id}</span>
+        <span className="id-badge">#{index + 1}</span>
+      </td>
+      <td>
+        <div className="company-table-cell">
+          <span className="company-dot" style={{ background: getCompanyColor(companyName) }}></span>
+          <span className="company-name">{companyName}</span>
+        </div>
       </td>
       <td style={{ maxWidth: 360 }}>
         <a
-          href={app.link.startsWith('http') ? app.link : `https://${app.link}`}
+          href={app.link && app.link.startsWith('http') ? app.link : `https://${app.link}`}
           target="_blank"
           rel="noopener noreferrer"
           className="app-link"
@@ -241,7 +267,7 @@ export default function ApplicationList({
             <table className="app-table">
               <thead>
                 <tr>
-                  {['ID', 'Link', 'Status', 'Date', 'Time', 'Actions'].map((h) => (
+                  {['#', 'Company', 'Link', 'Status', 'Date', 'Time', 'Actions'].map((h) => (
                     <th key={h} style={{ textAlign: h === 'Actions' ? 'right' : 'left' }}>{h}</th>
                   ))}
                 </tr>
@@ -249,7 +275,7 @@ export default function ApplicationList({
               <tbody>
                 {applications.map((app, i) => (
                   <ApplicationRow
-                    key={app.id}
+                    key={app.id || i}
                     app={app}
                     index={i}
                     onDeleteRequest={handleDeleteRequest}

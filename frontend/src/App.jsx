@@ -41,7 +41,7 @@ function App() {
 
   useEffect(() => { getApplications(); }, [getApplications]);
 
-  const saveApplication = async () => {
+  const saveApplication = async (companyName) => {
     if (!link.trim()) {
       setToast({ message: 'Please enter an application link!', type: 'error' });
       return;
@@ -51,7 +51,10 @@ function App() {
       const res = await fetch(BASE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ link: link.trim() }),
+        body: JSON.stringify({ 
+          link: link.trim(),
+          company: companyName || 'Unknown'
+        }),
       });
       if (res.status === 409) {
         setToast({ message: '⚠️ Already applied!', type: 'error' });
@@ -113,6 +116,7 @@ function App() {
           setLink={setLink}
           onSave={saveApplication}
           saving={saving}
+          baseUrl={BASE_URL}
         />
         <ApplicationList
           applications={filteredApplications}
