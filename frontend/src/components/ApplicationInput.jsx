@@ -4,16 +4,20 @@ import { PlusIcon } from './Icons';
 export default function ApplicationInput({ link, setLink, onSave, saving, baseUrl }) {
   const [aiDetectedName, setAiDetectedName] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isEditingManually, setIsEditingManually] = useState(false);
+  const [manualName, setManualName] = useState('');
   const debounceRef = useRef(null);
 
   useEffect(() => {
     if (!link || !link.trim() || !baseUrl) {
       setAiDetectedName(null);
       setIsAiLoading(false);
+      setIsEditingManually(false);
       return;
     }
 
     setAiDetectedName(null);
+    setIsEditingManually(false);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     
@@ -29,8 +33,10 @@ export default function ApplicationInput({ link, setLink, onSave, saving, baseUr
           const data = await res.json();
           if (data.company && data.company !== 'Unknown') {
             setAiDetectedName(data.company);
+            setManualName(data.company);
           } else {
             setAiDetectedName('Unknown');
+            setManualName('');
           }
         }
       } catch (err) {
@@ -45,17 +51,16 @@ export default function ApplicationInput({ link, setLink, onSave, saving, baseUr
   }, [link, baseUrl]);
 
   const handleSave = () => {
-    if (isAiLoading || !aiDetectedName || aiDetectedName === 'Unknown') {
-        // If AI failed or still loading, don't allow "Unknown" to be saved easily
-        // But if user really wants to save, we could let them? 
-        // No, let's keep it strict as requested.
+    const finalName = isEditingManually ? manualName : aiDetectedName;
+    if (!finalName || finalName === 'Unknown' || finalName.trim() === '') {
         return;
     }
-    onSave(aiDetectedName);
+    onSave(finalName);
+    setIsEditingManually(false);
+    setAiDetectedName(null);
   };
 
-  // Button is only active if AI has found a valid name
-  const isSaveDisabled = saving || isAiLoading || !aiDetectedName || aiDetectedName === 'Unknown';
+  const isSaveDisabled = saving || isAiLoading || (!isEditingManually && (aiDetectedName === 'Unknown' || !aiDetectedName)) || (isEditingManually && !manualName.trim());
 
   return (
     <div className="anim-fade-up delay-1">
@@ -84,20 +89,58 @@ export default function ApplicationInput({ link, setLink, onSave, saving, baseUr
         </button>
       </div>
 
-      {/* AI preview badge */}
+      {/* AI preview / Manual Edit badge */}
       {(isAiLoading || aiDetectedName) && link.trim() && (
         <div
           className="company-preview anim-fade-in"
-          style={{ '--badge-color': aiDetectedName === 'Unknown' ? '#ef4444' : '#6366f1' }}
+          style={{ 
+            '--badge-color': (aiDetectedName === 'Unknown' && !isEditingManually) ? '#ef4444' : '#6366f1',
+            display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px'
+          }}
         >
-          <span className="company-preview__emoji">{aiDetectedName === 'Unknown' ? '❌' : '✨'}</span>
-          <span className="company-preview__label">
-            {isAiLoading ? 'AI Thinking...' : aiDetectedName === 'Unknown' ? 'AI Error:' : 'AI Detected:'}
+          <span className="company-preview__emoji">
+            {isAiLoading ? '✨' : (aiDetectedName === 'Unknown' && !isEditingManually) ? '❓' : '🏢'}
           </span>
-          <span className="company-preview__name" style={{ color: aiDetectedName === 'Unknown' ? '#ef4444' : '#6366f1' }}>
-            {isAiLoading ? 'Searching...' : aiDetectedName}
-          </span>
-          {isAiLoading && <div className="spinner-mini" style={{ marginLeft: 8 }} />}
+          
+          {!isEditingManually ? (
+            <>
+              <span className="company-preview__label">
+                {isAiLoading ? 'AI Thinking...' : 'Detected:'}
+              </span>
+              <span className="company-preview__name">
+                {isAiLoading ? 'Searching...' : aiDetectedName}
+              </span>
+              {!isAiLoading && (
+                <button 
+                  onClick={() => { setIsEditingManually(true); setManualName(aiDetectedName === 'Unknown' ? '' : aiDetectedName); }}
+                  className="btn-manual-edit"
+                  style={{ marginLeft: 8 }}
+                >
+                  Edit Manually
+                </button>
+              )}
+            </>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="company-preview__label">Company Name:</span>
+              <input 
+                type="text"
+                value={manualName}
+                onChange={(e) => setManualName(e.target.value)}
+                placeholder="Enter company name..."
+                className="manual-input-field"
+                autoFocus
+              />
+              <button 
+                onClick={() => setIsEditingManually(false)}
+                className="btn-cancel-edit"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          
+          {isAiLoading && <div className="spinner-mini" />}
         </div>
       )}
     </div>
