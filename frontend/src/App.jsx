@@ -118,6 +118,13 @@ function App() {
           saving={saving}
           baseUrl={BASE_URL}
         />
+        {!loading && applications.length > 0 && (
+          <ActivityHeatmap
+            applications={applications}
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
+          />
+        )}
         <ApplicationList
           applications={filteredApplications}
           loading={loading}
@@ -128,13 +135,6 @@ function App() {
           onDelete={deleteApplication}
           onUpdateStatus={updateStatus}
         />
-        {!loading && applications.length > 0 && (
-          <ActivityHeatmap
-            applications={applications}
-            selectedDate={selectedDate}
-            onDateSelect={setSelectedDate}
-          />
-        )}
         <footer className="footer">
           Built with ❤️ using React + Vite + Spring Boot
         </footer>
