@@ -15,13 +15,18 @@ function App() {
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredApplications = useMemo(() => {
-    if (!selectedDate) return applications;
-    return applications.filter(
-      (app) => app.createdAt && app.createdAt.split('T')[0] === selectedDate
-    );
-  }, [applications, selectedDate]);
+    return applications.filter((app) => {
+      const matchesDate = !selectedDate || (app.createdAt && app.createdAt.split('T')[0] === selectedDate);
+      const matchesSearch = !searchQuery || 
+        (app.company && app.company.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (app.link && app.link.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      return matchesDate && matchesSearch;
+    });
+  }, [applications, selectedDate, searchQuery]);
 
   const getApplications = useCallback(async () => {
     try {
@@ -125,6 +130,21 @@ function App() {
             onDateSelect={setSelectedDate}
           />
         )}
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="🔍 Search by company or link..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+          {searchQuery && (
+            <button className="clear-search" onClick={() => setSearchQuery('')}>
+              ✕
+            </button>
+          )}
+        </div>
+
         <ApplicationList
           applications={filteredApplications}
           loading={loading}
