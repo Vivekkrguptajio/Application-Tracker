@@ -24,6 +24,8 @@ public class ApplicationResponse {
     @JsonProperty("updatedAt")
     private LocalDateTime updatedAt;
 
+
+
     // ── Static factory from Entity ──
 
     public static ApplicationResponse from(Application app) {
@@ -34,6 +36,7 @@ public class ApplicationResponse {
         res.company = app.getCompany();
         res.createdAt = app.getCreatedAt();
         res.updatedAt = app.getUpdatedAt();
+
         return res;
     }
 
@@ -62,4 +65,6 @@ public class ApplicationResponse {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
+
 }

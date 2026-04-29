@@ -19,7 +19,8 @@ public class ApplicationService {
     private final ApplicationRepository repository;
     private final AiService aiService;
 
-    public ApplicationService(ApplicationRepository repository, AiService aiService) {
+    public ApplicationService(ApplicationRepository repository, 
+                            AiService aiService) {
         this.repository = repository;
         this.aiService = aiService;
     }
@@ -73,21 +74,31 @@ public class ApplicationService {
     }
 
     /**
-     * Create a new application from request DTO.
+     * Create a new application.
      */
     @Transactional
     public ApplicationResponse create(ApplicationRequest request) {
         String trimmedLink = request.getLink().trim();
+        System.out.println("Creating application for link: " + trimmedLink);
 
         if (repository.findByLink(trimmedLink).isPresent()) {
+            System.out.println("Duplicate found for link: " + trimmedLink);
             throw new com.example.demo.exception.DuplicateResourceException("Application with this link already exists");
         }
 
         Application app = new Application();
         app.setLink(trimmedLink);
         app.setCompany(request.getCompany());
-        Application saved = repository.save(app);
-        return ApplicationResponse.from(saved);
+
+        try {
+            Application saved = repository.save(app);
+            System.out.println("Application saved to DB with ID: " + saved.getId());
+            return ApplicationResponse.from(saved);
+        } catch (Exception e) {
+            System.err.println("DB Save failed: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     /**

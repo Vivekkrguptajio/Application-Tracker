@@ -136,7 +136,7 @@ function StatusDropdown({ status, onChange }) {
 }
 
 /* ── Application Row ── */
-function ApplicationRow({ app, index, onDeleteRequest, onUpdateStatus }) {
+function ApplicationRow({ app, index, onDeleteRequest, onUpdateStatus, baseUrl }) {
   let datePart = '—', timePart = '—';
   if (app.createdAt) {
     const [d, t] = app.createdAt.split('T');
@@ -145,6 +145,8 @@ function ApplicationRow({ app, index, onDeleteRequest, onUpdateStatus }) {
   }
 
   const companyName = app.company || 'Unknown';
+
+
 
   return (
     <tr className="anim-fade-up" style={{ animationDelay: `${index * 0.04}s` }}>
@@ -177,13 +179,15 @@ function ApplicationRow({ app, index, onDeleteRequest, onUpdateStatus }) {
       <td style={{ color: '#94a3b8' }}>{datePart}</td>
       <td style={{ color: '#64748b', fontFamily: 'monospace' }}>{timePart}</td>
       <td>
-        <button
-          onClick={() => onDeleteRequest(app.id)}
-          className="btn-delete"
-          title="Delete"
-        >
-          <TrashIcon />
-        </button>
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <button
+            onClick={() => onDeleteRequest(app.id)}
+            className="btn-delete"
+            title="Delete"
+          >
+            <TrashIcon />
+          </button>
+        </div>
       </td>
     </tr>
   );
@@ -193,9 +197,10 @@ function ApplicationRow({ app, index, onDeleteRequest, onUpdateStatus }) {
 export default function ApplicationList({
   applications, loading, refreshing,
   selectedDate, onClearDate, onRefresh,
-  onDelete, onUpdateStatus,
+  onDelete, onUpdateStatus, baseUrl
 }) {
   const [confirmId, setConfirmId] = useState(null);
+  const [sortOrder, setSortOrder] = useState('none');
 
   const handleDeleteRequest = (id) => setConfirmId(id);
 
@@ -207,6 +212,21 @@ export default function ApplicationList({
   };
 
   const handleCancelDelete = () => setConfirmId(null);
+
+  const handleSortToggle = () => {
+    if (sortOrder === 'none') setSortOrder('asc');
+    else if (sortOrder === 'asc') setSortOrder('desc');
+    else setSortOrder('none');
+  };
+
+  const displayApplications = [...applications].sort((a, b) => {
+    if (sortOrder === 'none') return 0;
+    const nameA = (a.company || 'Unknown').toLowerCase();
+    const nameB = (b.company || 'Unknown').toLowerCase();
+    if (nameA < nameB) return sortOrder === 'asc' ? -1 : 1;
+    if (nameA > nameB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   return (
     <div className="anim-fade-up delay-2">
@@ -268,18 +288,48 @@ export default function ApplicationList({
               <thead>
                 <tr>
                   {['#', 'Company', 'Link', 'Status', 'Date', 'Time', 'Actions'].map((h) => (
-                    <th key={h} style={{ textAlign: h === 'Actions' ? 'right' : 'left' }}>{h}</th>
+                    <th key={h} style={{ textAlign: h === 'Actions' ? 'right' : 'left' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: h === 'Actions' ? 'flex-end' : 'flex-start' }}>
+                        {h}
+                        {h === 'Company' && (
+                          <button 
+                            onClick={handleSortToggle}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: sortOrder !== 'none' ? '#6366f1' : '#64748b', display: 'flex', alignItems: 'center' }}
+                            title="Sort A-Z / Z-A"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              {sortOrder === 'asc' ? (
+                                <>
+                                  <path d="M3 6h18M3 12h12M3 18h6"/>
+                                  <path d="M15 18l3 3 3-3"/>
+                                  <path d="M18 21V9"/>
+                                </>
+                              ) : sortOrder === 'desc' ? (
+                                <>
+                                  <path d="M3 6h18M3 12h12M3 18h6"/>
+                                  <path d="M15 9l3-3 3 3"/>
+                                  <path d="M18 3v12"/>
+                                </>
+                              ) : (
+                                <path d="M7 15l5 5 5-5M7 9l5-5 5 5"/>
+                              )}
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {applications.map((app, i) => (
+                {displayApplications.map((app, i) => (
                   <ApplicationRow
                     key={app.id || i}
                     app={app}
-                    index={i}
+                    index={applications.indexOf(app)} // Preserve the original application index for the # column
                     onDeleteRequest={handleDeleteRequest}
                     onUpdateStatus={onUpdateStatus}
+                    baseUrl={baseUrl}
                   />
                 ))}
               </tbody>

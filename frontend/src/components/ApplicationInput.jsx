@@ -6,6 +6,7 @@ export default function ApplicationInput({ link, setLink, onSave, saving, baseUr
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [isEditingManually, setIsEditingManually] = useState(false);
   const [manualName, setManualName] = useState('');
+
   const debounceRef = useRef(null);
 
   useEffect(() => {
@@ -64,29 +65,36 @@ export default function ApplicationInput({ link, setLink, onSave, saving, baseUr
 
   return (
     <div className="anim-fade-up delay-1">
-      <div className="input-card">
-        <input
-          id="application-link-input"
-          type="text"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && !isSaveDisabled && handleSave()}
-          placeholder="Paste your job application link here..."
-          className="input-field"
-        />
-        <button
-          id="save-application-btn"
-          onClick={handleSave}
-          disabled={isSaveDisabled}
-          className="btn-save"
-          style={{ 
-            opacity: isSaveDisabled ? 0.5 : 1,
-            cursor: isSaveDisabled ? 'not-allowed' : 'pointer'
-          }}
-        >
-          <PlusIcon />
-          {saving ? 'Saving...' : isAiLoading ? 'AI Detecting...' : 'Save Application'}
-        </button>
+      <div className="input-card" style={{ flexDirection: 'column', padding: '24px', gap: '16px' }}>
+        <div style={{ width: '100%', display: 'flex', gap: '12px' }}>
+          <input
+            id="application-link-input"
+            type="text"
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && !isSaveDisabled && handleSave()}
+            placeholder="Paste your job application link here..."
+            className="input-field"
+            style={{ flex: 1 }}
+          />
+        </div>
+
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'flex-end' }}>
+          <button
+            id="save-application-btn"
+            onClick={handleSave}
+            disabled={isSaveDisabled}
+            className="btn-save"
+            style={{ 
+              opacity: isSaveDisabled ? 0.5 : 1,
+              cursor: isSaveDisabled ? 'not-allowed' : 'pointer',
+              height: '48px'
+            }}
+          >
+            <PlusIcon />
+            {saving ? 'Saving...' : isAiLoading ? 'AI Detecting...' : 'Save Application'}
+          </button>
+        </div>
       </div>
 
       {/* AI preview / Manual Edit badge */}
@@ -95,7 +103,8 @@ export default function ApplicationInput({ link, setLink, onSave, saving, baseUr
           className="company-preview anim-fade-in"
           style={{ 
             '--badge-color': (aiDetectedName === 'Unknown' && !isEditingManually) ? '#ef4444' : '#6366f1',
-            display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px'
+            display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px',
+            marginTop: '12px'
           }}
         >
           <span className="company-preview__emoji">

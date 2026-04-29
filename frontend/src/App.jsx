@@ -61,6 +61,7 @@ function App() {
           company: companyName || 'Unknown'
         }),
       });
+
       if (res.status === 409) {
         setToast({ message: '⚠️ Already applied!', type: 'error' });
         return;
@@ -70,7 +71,8 @@ function App() {
       setToast({ message: '✅ Application saved!', type: 'success' });
       setLink('');
       getApplications();
-    } catch {
+    } catch (err) {
+      console.error("Save error:", err);
       setToast({ message: 'Failed to save application', type: 'error' });
     } finally {
       setSaving(false);
@@ -154,6 +156,7 @@ function App() {
           onRefresh={() => { setRefreshing(true); getApplications(); }}
           onDelete={deleteApplication}
           onUpdateStatus={updateStatus}
+          baseUrl={BASE_URL}
         />
         <footer className="footer">
           Built with ❤️ using React + Vite + Spring Boot

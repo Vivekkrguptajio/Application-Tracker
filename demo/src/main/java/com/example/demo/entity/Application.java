@@ -77,4 +77,6 @@ public class Application {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
+
 }

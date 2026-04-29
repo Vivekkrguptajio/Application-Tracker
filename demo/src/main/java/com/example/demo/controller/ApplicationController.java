@@ -19,7 +19,8 @@ public class ApplicationController {
     private final ApplicationService service;
     private final com.example.demo.service.AiService aiService;
 
-    public ApplicationController(ApplicationService service, com.example.demo.service.AiService aiService) {
+    public ApplicationController(ApplicationService service, 
+                               com.example.demo.service.AiService aiService) {
         this.service = service;
         this.aiService = aiService;
     }
