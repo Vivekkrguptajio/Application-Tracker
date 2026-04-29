@@ -9,6 +9,7 @@ import com.example.demo.repository.ApplicationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Sort;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public class ApplicationService {
      */
     @Transactional(readOnly = true)
     public List<ApplicationResponse> getAll() {
-        return repository.findAll()
+        return repository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
                 .stream()
                 .map(ApplicationResponse::from)
                 .collect(Collectors.toList());
